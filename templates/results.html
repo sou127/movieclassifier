@@ -1,8 +1,9 @@
 <!doctype html>
 <html>
   <head>
-    <title>Movie Classification</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <title>Movie Classification</title>
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   </head>
   <body>
 
@@ -15,6 +16,17 @@
         <h3>Prediction:</h3>
         <div class="prediction-box">
             This movie review is <strong>{{ prediction }}</strong> (probability: {{ probability }}%).
+        </div>
+
+        <div class="stars">
+            {% set star_color = 'yellow' if prediction == 'positive' else 'red' %}
+            {% for i in range(5) %}
+                {% if i < stars %}
+                    <i class="far fa-star" style="background-color: {{ star_color }};"></i>
+                {% else %}
+                    <i class="far fa-star" style="color: white;"></i>
+                {% endif %}
+            {% endfor %}
         </div>
 
         <div class="button-container">

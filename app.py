@@ -4,17 +4,23 @@ import pickle
 import sqlite3
 import os
 import numpy as np
+import requests
+from flask_cors import CORS
 
 # import HashingVectorizer from local dir
 from vectorizer import vect
 
 app = Flask(__name__)
+CORS(app)
+
+url_clf = 'https://github.com/sou127/movieclassifier/raw/main/pkl_objects/classifier.pkl'
+
+response_clf = requests.get(url_clf, allow_redirects=True)
+response_clf.raise_for_status()
 
 ######## Preparing the Classifier
 cur_dir = os.path.dirname(__file__)
-clf = pickle.load(open(os.path.join(cur_dir,
-                 'pkl_objects',
-                 'classifier.pkl'), 'rb'))
+clf = pickle.loads(response_clf.content)
 db = os.path.join(cur_dir, 'reviews.sqlite')
 
 def classify(document):
@@ -53,10 +59,16 @@ def results():
     if request.method == 'POST' and form.validate():
         review = request.form['moviereview']
         y, proba = classify(review)
+
+        stars = int(round(proba * 100, 2)) // 20
+        if stars > 5:
+            stars = 5
+
         return render_template('results.html',
                                 content=review,
                                 prediction=y,
-                                probability=round(proba*100, 2))
+                                probability=round(proba*100, 2),
+                                stars=stars)
     return render_template('reviewform.html', form=form)
 
 @app.route('/thanks', methods=['POST'])
